@@ -19,6 +19,7 @@
 #pragma comment(lib, "opencv_video246d.lib")
 
 #include "afx.h"
+#include "cmath"
 using namespace cv;
 using namespace std;
 
