@@ -30,7 +30,6 @@ float calcShannonEnt(Mat& data)
 	{
 		float prob = it->second;
 		prob/=n;
-		printf("%.2f\n", prob);
 		shannonEnt -= prob * log(prob)/log(2.0f);
 	}
 	return shannonEnt;
@@ -72,7 +71,6 @@ int splitDataSet(Mat& data, int axis, float val, Mat& dst)
 		}
 		
 	}
-	cout<<dst<<endl;
 	return row;
 }
 
@@ -80,7 +78,6 @@ int chooseBestFeatureToSplit(Mat& data)
 {
 	int numFeatures = data.cols -1;
 	float baseEntropy = calcShannonEnt(data);
-	printf("baseEntropy = %.5f\n", baseEntropy);
 	float bestInfoGain = 0.0;
 	float bestFeature = -1;
 	
@@ -103,9 +100,7 @@ int chooseBestFeatureToSplit(Mat& data)
 			
 			float prob = dst.rows;
 			prob /= float(data.rows);
-			cout<<"prob  " << dst.rows<<endl;
 			newEntropy += prob * calcShannonEnt(dst) ;    
-			cout<<"newent   "<< newEntropy<<endl;
 		}
 		float infoGain = baseEntropy - newEntropy;
 		if (infoGain > bestInfoGain)
@@ -120,11 +115,14 @@ int chooseBestFeatureToSplit(Mat& data)
 
 #define TYPE float
 
-//树的节点
 struct TreeNode{
-	TYPE element;//该节点的元素
-	TreeNode *firstChild;//指向该节点的第一个孩子
-	TreeNode *nextSibling;//指向该节点的兄弟节点
+	TYPE element;
+	
+	TreeNode *firstChild;
+	TreeNode *preSibling;
+	TreeNode *nextSibling;
+	float val;
+	TreeNode(){val = 0;firstChild = preSibling = nextSibling = NULL;}
 
 };
 
@@ -133,15 +131,17 @@ public:
 	Tree();
 	~Tree();
 
-	void addNode(int i, int j); 
-	void preOrder();//前序遍历
-	void print();//打印
+	void addNode(TreeNode* parent, TreeNode* node);
+	float getFirstBranchValue(TreeNode* node);
+	void deleteNode(TreeNode* node);
+	void preOrder();
+	void print();
 private:
 	void print(TreeNode* node, int num);
 	void addBrotherNode(TreeNode* bro, TreeNode* node);
-	void preOrder(TreeNode* parent);//前序遍历
-private:
-	TreeNode * root;//该树的根
+	void preOrder(TreeNode* parent);
+public:
+	TreeNode * root;
 };
 
 //打印树的形状
@@ -150,6 +150,33 @@ void Tree::print()
 	print(root, 0);
 }
 
+float Tree::getFirstBranchValue(TreeNode* node)
+{
+	if(node == NULL)
+	{
+		return 0;
+	}
+	
+	if(node->firstChild == NULL && node->nextSibling == NULL && node->preSibling == NULL) // leaf
+	{
+		return 0;
+	} else if(node->firstChild != NULL && ( node->preSibling != NULL || node->nextSibling != NULL )) {
+		return node->element;
+	}
+	else {
+		float ret = getFirstBranchValue(node->firstChild);
+		if(ret!= 0) return ret;
+		return getFirstBranchValue(node->nextSibling);
+	}
+	
+}
+void Tree::deleteNode(TreeNode* node)
+{
+    if(node == NULL) return;
+    deleteNode(node->firstChild);
+    deleteNode(node->nextSibling);
+    delete node;
+}
 void printSpace(int num)
 {
 	int i = 0;
@@ -167,16 +194,15 @@ void Tree::print(TreeNode* node, int num)
 {
 	if(node != NULL){
 		printSpace(num); 
-		cout << node->element << endl;  
+		cout << node->element << " " << node->val <<endl;  
 		print(node->firstChild, num+4);
 		print(node->nextSibling, num);
 	}
 }
 
-//前序遍历
 void Tree::preOrder()
 {
-	cout << "前序遍历: ";
+	cout << "preOrder: ";
 	preOrder(root);
 	cout << endl;
 }
@@ -184,44 +210,41 @@ void Tree::preOrder()
 void Tree::preOrder(TreeNode* parent)
 {
 	if(parent != NULL){
-		cout << parent->element << " ";
+		cout << parent->element << " " << parent->val <<" ";
 		preOrder(parent->firstChild);
 		preOrder(parent->nextSibling);
 	}
 }
 
-//分配并初始化所有的树结点
 Tree::Tree()
 {
 	root = NULL;
 }
 
-//释放所有节点的内存空间
 Tree::~Tree()
 {
-	if(root != NULL)
-		delete [] root;
+	deleteNode(root);
 }
 
-//addNode将父子结点组对
-//如果父节点的firstChild==NULL, 则firstChild = node;
-//如果父节点的firstChild != NULL, 则
-void Tree::addNode(int i, int j)
+void Tree::addNode(TreeNode* parent, TreeNode* node)
 {
-	TreeNode* parent = &root[i];
-	TreeNode* node = &root[j];
-
+	if(parent == NULL)
+	{
+	     root = node;
+	     return;
+	}
 	if(parent->firstChild == NULL)
 		parent->firstChild = node;
 	else
 		addBrotherNode(parent->firstChild, node);
 }
 
-//将节点插入到兄弟节点
 void Tree::addBrotherNode(TreeNode* bro, TreeNode* node)
 {
-	if(bro->nextSibling == NULL)
+	if(bro->nextSibling == NULL){
 		bro->nextSibling = node;
+		node->preSibling = bro;
+	}
 	else
 		addBrotherNode(bro->nextSibling, node);
 }
@@ -257,14 +280,40 @@ float majorityCnt(Mat& classList)
 	}
 	return maxKey;
 }
-float createTree(Mat& data, Mat& label, Tree& tree)
+
+void DeleteOneColOfMat(Mat& object,int num)  
+{  
+    if (num<0 || num>=object.cols)  
+    {  
+    }  
+    else  
+    {  
+        if (num == object.cols-1)  
+        {  
+            object = object.t();  
+            object.pop_back();  
+            object = object.t();  
+        }  
+        else  
+        {  
+            for (int i=num+1;i<object.cols;i++)  
+            {  
+                object.col(i-1) = object.col(i) + Scalar(0);  
+            }  
+            object = object.t();  
+            object.pop_back();  
+            object = object.t();  
+        }  
+    }  
+}
+float createTree(Mat& data, Mat& label, Tree& tree, TreeNode* parent, int iVal)
 {
 	Mat classList(1, data.rows, CV_32F);
 	for(int i = 0; i < data.rows; i++)
 	{
 		classList.at<float>(0, i) = data.at<float>(i, data.cols -1);
 	}
-	cout<<classList<<endl;
+	
 	// check classList
 	bool allEqual = true;
 	for(int i = 0; i < classList.cols; i++)
@@ -275,16 +324,87 @@ float createTree(Mat& data, Mat& label, Tree& tree)
 			break;
 		}
 	}
-	if(allEqual)
-		return classList.at<float>(0, 0);
+	if(allEqual) {
+		cout<<"1111"<<endl;
+		TreeNode* node = new TreeNode();
+		node->element = classList.at<float>(0, 0);
+		node->val = iVal;
+               	tree.addNode(parent, node);
+		return 0;
+	}
 	if(data.cols == 1)
 	{
-		return majorityCnt(classList);
+		cout<<"222"<<endl;
+		TreeNode* node = new TreeNode();
+		node->element = majorityCnt(classList);
+		node->val = iVal;
+                tree.addNode(parent, node);
+		return 0;
 	}
 	int best = chooseBestFeatureToSplit(data);
 	float bestLabel = label.at<float>(0, best);
+	TreeNode* node = new TreeNode();
+	node->element = bestLabel;
+	node->val = iVal;
+        tree.addNode(parent, node);
+	DeleteOneColOfMat(label, best);
+	Mat featValues = data.col(best);
+	cout<<featValues<<endl;
+        set<float> s;
+	for(int i = 0; i < featValues.rows; i++)
+	{
+		s.insert(featValues.at<float>(i, 0));
+	}
+	set<float>::iterator j = s.begin();
+	for(; j != s.end(); j++)
+	{
+		cout<<*j<<"  "<<s.count(*j)<<endl;
+		Mat subLabel = label.clone();
+		Mat dst;
+		splitDataSet(data, best, *j, dst);
+		
+		createTree(dst, subLabel, tree, node, *j);
+		tree.print();
+		
+	}
+	return 0;
+}
+
+TreeNode* findRoot(TreeNode* node,float key)
+{
+	cout<<"findRoot "<<key<<endl;
+	if(node == NULL)
+		return NULL;
+	if(node->val == key)
+		return node;
+	TreeNode* p = findRoot(node->firstChild, key);
+	if(p != NULL) return p;
+	return findRoot(node->nextSibling, key);	
+}
+
+float classifyTree(TreeNode* node, Mat& label, Mat& testData)
+{
+	float first = node->element;
+	TreeNode* second = node->firstChild;
+	int featIndex = 0; 
+	for(; featIndex < label.cols; featIndex++)
+	{
+		if(first == label.at<float>(0, featIndex))
+			break;
+	}
+	float key = testData.at<float>(0, featIndex);
+	TreeNode* valueOfFeat = findRoot(second, key);
+	if(valueOfFeat) {
+		float classLabel = 0;
+		if(valueOfFeat->firstChild)
+		{
+			classLabel = classifyTree(valueOfFeat, label, testData);
+		}
+		else classLabel = valueOfFeat->element;
 	
-	// TODO
+		return classLabel;
+	}
+	return 0;
 
 }
 void testTree()
@@ -292,7 +412,34 @@ void testTree()
 	float c[15] = {1, 1, 101, 1, 1, 101, 1, 0, 100, 0, 1, 100, 0, 1, 100};
 	CvMat data = cvMat(5, 3, CV_32F, c);
 	float d[2] = {201, 202};
+        float e[2] = {1, 0};
 	CvMat label = cvMat(1, 2, CV_32F, d);
-	int n = chooseBestFeatureToSplit(Mat(&data));
+	CvMat testData = cvMat(1, 2, CV_32F, e);
+	Mat mData(&data);
+	Mat mLabel(&label);
+	Mat mTestData(&testData);
+	int n = chooseBestFeatureToSplit(mData);
 	cout<< n <<endl;
+	Tree tree;
+	createTree(mData, mLabel, tree, NULL, -1);
+	cout<<"################"<<endl;
+	tree.print();
+	float ret = classifyTree(tree.root, mLabel, mTestData);
+	cout<<ret<<endl;
+	
+	/*
+	TreeNode* node = new TreeNode();
+	node->element = 5;
+        Tree tree;
+        tree.addNode(NULL, node);
+        
+	TreeNode* node1 = new TreeNode();
+	TreeNode* node2 = new TreeNode();
+	TreeNode* node3 = new TreeNode();
+        node1->element = 6;node2->element = 7;node3->element = 8;
+	tree.addNode(node, node2);
+	tree.addNode(node, node1);
+	tree.addNode(node2, node3);
+	tree.print();
+	*/
 }
