@@ -1,4 +1,4 @@
-# Install script for directory: /home/yin/github/machinelearning_mfc/ML
+# Install script for directory: /home/yin/github/merge/machinelearning_mfc/ML
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/yin/github/machinelearning_mfc/ML/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/yin/github/merge/machinelearning_mfc/ML/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

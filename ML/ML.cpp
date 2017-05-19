@@ -6,7 +6,7 @@
 
 int main(int argc, char* argv[])
 {
-	testTree();
+	testBayes();
 	
 	return 0;
 }

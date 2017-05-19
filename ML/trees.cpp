@@ -325,20 +325,18 @@ float createTree(Mat& data, Mat& label, Tree& tree, TreeNode* parent, int iVal)
 		}
 	}
 	if(allEqual) {
-		cout<<"1111"<<endl;
 		TreeNode* node = new TreeNode();
 		node->element = classList.at<float>(0, 0);
 		node->val = iVal;
-               	tree.addNode(parent, node);
+        tree.addNode(parent, node);
 		return 0;
 	}
 	if(data.cols == 1)
 	{
-		cout<<"222"<<endl;
 		TreeNode* node = new TreeNode();
 		node->element = majorityCnt(classList);
 		node->val = iVal;
-                tree.addNode(parent, node);
+        tree.addNode(parent, node);
 		return 0;
 	}
 	int best = chooseBestFeatureToSplit(data);
@@ -412,7 +410,7 @@ void testTree()
 	float c[15] = {1, 1, 101, 1, 1, 101, 1, 0, 100, 0, 1, 100, 0, 1, 100};
 	CvMat data = cvMat(5, 3, CV_32F, c);
 	float d[2] = {201, 202};
-        float e[2] = {1, 0};
+        float e[2] = {1, 1};
 	CvMat label = cvMat(1, 2, CV_32F, d);
 	CvMat testData = cvMat(1, 2, CV_32F, e);
 	Mat mData(&data);

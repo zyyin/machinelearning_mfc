@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/yin/github/machinelearning_mfc/ML
+CMAKE_SOURCE_DIR = /home/yin/github/merge/machinelearning_mfc/ML
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/yin/github/machinelearning_mfc/ML
+CMAKE_BINARY_DIR = /home/yin/github/merge/machinelearning_mfc/ML
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yin/github/machinelearning_mfc/ML/CMakeFiles /home/yin/github/machinelearning_mfc/ML/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yin/github/merge/machinelearning_mfc/ML/CMakeFiles /home/yin/github/merge/machinelearning_mfc/ML/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yin/github/machinelearning_mfc/ML/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yin/github/merge/machinelearning_mfc/ML/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -150,6 +150,33 @@ ML.cpp.s:
 	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/ML.cpp.s
 .PHONY : ML.cpp.s
 
+bayes.o: bayes.cpp.o
+
+.PHONY : bayes.o
+
+# target to build an object file
+bayes.cpp.o:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/bayes.cpp.o
+.PHONY : bayes.cpp.o
+
+bayes.i: bayes.cpp.i
+
+.PHONY : bayes.i
+
+# target to preprocess a source file
+bayes.cpp.i:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/bayes.cpp.i
+.PHONY : bayes.cpp.i
+
+bayes.s: bayes.cpp.s
+
+.PHONY : bayes.s
+
+# target to generate assembly for a file
+bayes.cpp.s:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/bayes.cpp.s
+.PHONY : bayes.cpp.s
+
 trees.o: trees.cpp.o
 
 .PHONY : trees.o
@@ -189,6 +216,9 @@ help:
 	@echo "... ML.o"
 	@echo "... ML.i"
 	@echo "... ML.s"
+	@echo "... bayes.o"
+	@echo "... bayes.i"
+	@echo "... bayes.s"
 	@echo "... trees.o"
 	@echo "... trees.i"
 	@echo "... trees.s"
