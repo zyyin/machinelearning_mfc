@@ -13,27 +13,3 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-
-#ifndef MACHINE_LEARNING
-#define MACHINE_LEARNING
-
-
-#define LN_E 2.718281828459045235360287
-// kNN
-void TestKNN();
-void handwritingClassTest();
-
-// trees
-float calcShannonEnt(Mat& data);
-void testTree();
-
-// bayes
-void testBayes();
-
-
-
-
-
-
-
-#endif
