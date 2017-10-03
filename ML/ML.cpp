@@ -3,8 +3,8 @@
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	testBayes();
-	
+	//testBayes();
+	testSVM();
 	return 0;
 }
 
