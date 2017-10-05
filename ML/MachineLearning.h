@@ -32,8 +32,8 @@ void testBayes();
 
 
 void testSVM();
-
-
+void testRBF();
+void testSVMHandWriting();
 
 
 #endif

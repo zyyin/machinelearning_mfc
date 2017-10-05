@@ -156,7 +156,7 @@ typedef enum {
 	KERNEL_TYPE_RBF,
 } KERNEL_TYPE;
 
-bool kernelTrans(Mat& X, Mat& A, Mat& K, int type, int size) 
+bool kernelTrans(Mat& X, Mat& A, Mat& K, int type, double size) 
 {
 	int m = X.rows;
 	int n = X.cols;
@@ -177,7 +177,7 @@ bool kernelTrans(Mat& X, Mat& A, Mat& K, int type, int size)
 class SVMStruct
 {
 public:
-	SVMStruct(Mat& data, Mat& classLabels, double C, double toler, int kernelType = KERNEL_TYPE_LINEAR, int kernelSize = 0);
+	SVMStruct(Mat& data, Mat& classLabels, double C, double toler, int kernelType = KERNEL_TYPE_LINEAR, double kernelSize = 0);
 
 	double calcError(int k);
 	int selectJ(int i, double ei, double& ej); 
@@ -195,7 +195,7 @@ private:
 };
 
 
-SVMStruct::SVMStruct(Mat& data, Mat& classLabels, double C, double toler, int kernelType /* = KERNEL_TYPE_LINEAR */, int kernelSize /* = 0 */)
+SVMStruct::SVMStruct(Mat& data, Mat& classLabels, double C, double toler, int kernelType /* = KERNEL_TYPE_LINEAR */, double kernelSize /* = 0 */)
 {
 	X = data.clone();
 	labels = classLabels.clone();
@@ -269,8 +269,7 @@ int SVMStruct::slove(int i)
 	double ei = calcError(i);
 	double iOld = alphas.at<double>(i, 0);
 	if( ( (labels.at<double>(i, 0)*ei < -m_toler) && (iOld < m_c)) ||
-		 ( (labels.at<double>(i, 0)*ei > m_toler) && (iOld > 0)) )
-	{
+		 ( (labels.at<double>(i, 0)*ei > m_toler) && (iOld > 0)) ) {
 		double ej;
 		int j = selectJ(i, ei, ej);
 		if(j < 0) j = X.rows - 1;
@@ -320,15 +319,14 @@ int SVMStruct::slove(int i)
 		else m_b = (b1 + b2) / 2.0f;
 		
 		return 1;
-	}
-	else {
-		cout<<"Skip slove" <<endl;
+	} else {
+		//cout<<"Skip slove" <<endl;
 	}
 	return 0;
 }
 
 int FullSmo(Mat& src, Mat& labels, double C, double toler, 
-			  int maxIter, double& b, Mat& ret, int type = KERNEL_TYPE_LINEAR, int size = 0) 
+			  int maxIter, double& b, Mat& ret, int type = KERNEL_TYPE_LINEAR, double size = 0) 
 {
 	
 	SVMStruct svm(src, labels, C, toler, type, size);
@@ -380,7 +378,6 @@ void calcWs(Mat& alphas, Mat& data, Mat& labels, Mat& ws)
 		Mat t = alphas.row(i) * labels.row(i);
 		ws += t.at<double>(0, 0)*(data.row(i).t());
 	}
-	cout<<ws<<endl;
 }
 
 void testSVM()
@@ -390,7 +387,7 @@ void testSVM()
 	double b = 0; Mat ret;
 
 	//smoSimple(data, labels, 0.6, 0.001, 40, b, ret);
-	FullSmo(data, labels, 1, 0.001, 40, b, ret);
+	FullSmo(data, labels, 0.6, 0.001, 40, b, ret);
 
 	cout<<"##################################################################"<<endl;
 
@@ -408,4 +405,125 @@ void testSVM()
 	cout<<ret<<endl;
 	
 
+}
+
+void testRBF()
+{
+	Mat data, labels;
+	loadDataSet("testSetRBF.txt", data, labels);
+	double b = 0; Mat ret;
+
+	//smoSimple(data, labels, 0.6, 0.001, 40, b, ret);
+	FullSmo(data, labels, 20, 0.0001, 10000, b, ret, KERNEL_TYPE_RBF, 1.3);
+
+	cout<<"##################################################################"<<endl;
+
+	cout<<b<<endl;
+	cout<<"##################################################################"<<endl;
+	Mat ws(2, 1, CV_64F);
+	calcWs(ret, data, labels, ws);
+	Mat comp = labels.clone();
+
+	for(int i = 0; i < data.rows; i++){
+		Mat t = data.row(i)*(ws);
+		comp.at<double>(i, 0) = t.at<double>(0, 0) + b > 0 ? 1 : -1;
+	}
+	cv::absdiff(comp, labels, ret);
+	cout<<ret<<endl;
+}
+
+void loadImages(const char* path,  Mat& data, Mat& label)
+{
+	vector<string> fileList;
+	vector<string> nameList;
+	Utils util;
+	util.BrowseFolder(path, fileList, nameList);
+    data.create(nameList.size(), 32*32, CV_64F);
+	label.create( nameList.size(),1, CV_64F);
+	for(int i = 0; i < fileList.size(); i++)
+	{
+		xFile file(fileList[i].c_str(), "r");
+		int line = 0;
+		char* pBuffer;
+		while(pBuffer=file.ReadString()){
+			for(int j = 0; j < 32; j++)
+			{
+				data.at<double>(i, j+line*32) = pBuffer[j] - '0';
+			}
+			line++;
+		}
+		file.Close();
+		label.at<double>(i, 0) = atoi(nameList[i].c_str()) == 9 ? -1 : 1;
+	}
+}
+
+void testSVMHandWriting()
+{
+
+	Mat data, label;
+	loadImages("trainingDigits", data, label);
+
+	double b = 0; Mat ret;
+
+	FullSmo(data, label, 200, 0.0001, 10000, b, ret, KERNEL_TYPE_RBF, 10);
+
+	cout<<"##################################################################"<<endl;
+
+	int m = data.rows;
+	int n = data.cols;
+	int svNum = 0;
+	for(int i = 0; i < ret.rows; i++)
+	{
+		double a = ret.at<double>(i, 0);
+		if(a != 0)
+		{
+			svNum ++;
+		}
+	}
+	cout<<"SVNumber: "<<svNum<<endl;
+
+	Mat svData(svNum, n, CV_64F);
+	Mat svLabel(svNum, 1, CV_64F);
+	Mat svAlpha(svNum, 1, CV_64F);
+
+	int j = 0;
+	for(int i = 0; i < ret.rows; i++)
+	{
+		double a = ret.at<double>(i, 0);
+		if(a != 0)
+		{
+			data.row(i).copyTo(svData.row(j));
+			label.row(i).copyTo(svLabel.row(j));
+			ret.row(i).copyTo(svAlpha.row(j));
+			j++;
+		}
+	}
+
+	Mat svLA = svLabel.mul(svAlpha);
+	svNum = 0;
+	for(int i = 0; i < data.rows; i++)
+	{
+		Mat K;
+		kernelTrans(svData, data.row(i), K, KERNEL_TYPE_RBF, 10);
+		Mat t = K.t()*svLA;
+		double predict = t.at<double>(0, 0) + b;
+		if(predict*label.at<double>(i, 0) < 0)
+			svNum++;
+	}
+	
+	printf("Training Errors: %d / %d\n", svNum, data.rows);
+
+	loadImages("testDigits", data, label);
+	svNum = 0;
+	for(int i = 0; i < data.rows; i++)
+	{
+		Mat K;
+		kernelTrans(svData, data.row(i), K, KERNEL_TYPE_RBF, 10);
+		Mat t = K.t()*svLA;
+		double predict = t.at<double>(0, 0) + b;
+		if(predict*label.at<double>(i, 0) < 0)
+			svNum++;
+	}
+
+	printf("Test Errors: %d / %d\n", svNum, data.rows);
 }
