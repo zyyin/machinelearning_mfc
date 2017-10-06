@@ -4,7 +4,7 @@
 int _tmain(int argc, _TCHAR* argv[])
 {
 	//testBayes();
-	testSimpleData();
+	testAdaBoost();
 
 }
 

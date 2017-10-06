@@ -34,44 +34,45 @@ void stumpClassify(Mat& data, int dimen, double threshVal, int  ineq, Mat& ret)
 				ret.at<double>(j, 0) = -1;
 		}
 	}
+
 }
 
 typedef struct BestStump {
 	int dim;
 	double thresh;
 	int ineq;
+	double minError;
+	double alpha;
 	
 } BestStump;
 void buildStump(Mat& data, Mat& label, Mat& D, Mat& bestEst, BestStump& bs)
 {
 	int m = data.rows;
 	int n = data.cols;
-	label = label.t();
+	
 	bestEst = Mat::zeros(m, 1, data.type());
 	double numSteps = 10.0;
-	double minError = DBL_MAX;
+	bs.minError = DBL_MAX;
 	for(int j = 0; j < n; j++)
 	{
 		double minVal, maxVal;
 		minMaxLoc(data.col(j), &minVal, &maxVal);
 		double stepSize = (maxVal-minVal)/numSteps;
-		for(int i = -1; i < numSteps+1; i++)
+		for(int i = 0; i < numSteps+1; i++)
 		{
 			for(int ineq = 0; ineq < 2; ineq++) {
 				double threshVal = minVal + i*stepSize;
 				Mat predict;
 				stumpClassify(data, j, threshVal,ineq, predict);
-				Mat errorArr = Mat::ones(m, 1, data.type());
-				for(int ii = 0; ii < m; ii++) {
-					if(label.at<double>(ii, 0) == predict.at<double>(ii, 0))
-						errorArr.at<double>(ii, 0) = 0;
-				}
-				Mat we = D.t()*errorArr;
+				Mat errorArr;
+				absdiff(label , predict, errorArr);
+				
+				Mat we = D.t()*errorArr/2;
 				double weightedError = we.at<double>(0, 0);
 
-				if(weightedError < minError)
+				if(weightedError < bs.minError)
 				{
-					minError = weightedError;
+					bs.minError = weightedError;
 					bestEst = predict.clone();
 					bs.dim = j;
 					bs.ineq = ineq;
@@ -83,18 +84,104 @@ void buildStump(Mat& data, Mat& label, Mat& D, Mat& bestEst, BestStump& bs)
 
 }
 
+void sign(Mat& m)
+{
+	for(int j = 0; j < m.rows; j++)
+	{
+		if(m.at<double>(j, 0) > 0)
+			m.at<double>(j, 0) = 1;
+		else if(m.at<double>(j, 0) < 0)
+			m.at<double>(j, 0) = -1;
+	}
+
+}
+class WeakClassifier
+{
+public:
+	WeakClassifier(BestStump& bs)
+	{
+		m_bs = bs;
+	}
+
+	void solve(Mat& data, Mat& ret){
+		Mat est;
+		stumpClassify(data, m_bs.dim, m_bs.thresh, m_bs.ineq, ret);
+		ret *= m_bs.alpha;
+	}
+
+	BestStump m_bs;
+
+};
+
+
+void adaBoostTrainDS(Mat& data, Mat& label, int numIter, vector<WeakClassifier>& weakClassifierList)
+{
+	int m = data.rows;
+	Mat D = Mat::ones(m, 1, data.type())/m;
+	Mat agg = Mat::zeros(m, 1, data.type());
+	for(int i = 0; i < numIter; i++)
+	{
+
+		BestStump bs;
+		Mat est;
+		buildStump(data, label, D, est, bs);
+
+		double alpha = 0.5*log((1.0-bs.minError)/max(bs.minError,1e-16));
+		bs.alpha = alpha;
+		weakClassifierList.push_back(bs);
+		Mat tmp = -1*alpha*label;
+		Mat expon = tmp.mul(est);
+		for(int j = 0; j < expon.rows; j++)
+		{
+			expon.at<double>(j, 0) = exp(expon.at<double>(j, 0));
+		}
+		D = D.mul(expon);
+		double sum = 0;
+		for(int j = 0; j < m; j++)
+		{
+			sum += D.at<double>(j, 0);
+		}
+		D /= sum;
+		Mat tt = alpha*est;
+		agg += alpha*est;
+		Mat aggTmp = agg.clone();
+		sign(aggTmp);
+		absdiff(aggTmp, label, aggTmp);
+		aggTmp/=2;
+		double errorRate = mean(aggTmp)[0];
+		cout<<errorRate<<endl;
+		if(errorRate == 0)
+			break;
+		
+	}
+}
+
+void adaClassify(Mat& data, vector<WeakClassifier>& weakClassifierList, Mat& agg)
+{
+	int m = data.rows;
+	agg = Mat::zeros(m, 1, data.type());
+	for(int i = 0; i < weakClassifierList.size(); i++)
+	{
+		Mat ret;
+		weakClassifierList[i].solve(data, ret);
+		agg += ret;
+	}
+	sign(agg);
+}
 void testSimpleData()
 {
 
 	double b[5] = {1, 1, -1, -1, 1};
-	CvMat labels = cvMat(1, 5, CV_64F, b);
+	CvMat labels = cvMat(5, 1, CV_64F, b);
 	double c[10] = {1.0, 2.1, 2.0, 1.1, 1.3, 1, 1, 1, 2, 1};
 	CvMat data = cvMat(5, 2, CV_64F, c);
 	Mat D = Mat::ones(5, 1, CV_64F);
 	D /= 5.0;
 	BestStump bs;
 	Mat est;
-	buildStump(Mat(&data), Mat(&labels), D, est, bs);
+	Mat mData(&data);
+	Mat mLabel(&labels);
+	buildStump(mData, mLabel, D, est, bs);
 	cout<<"############### testSimpleData ################"<<endl;
 	cout<< D<<endl;
 	cout<<est<<endl;
@@ -102,4 +189,71 @@ void testSimpleData()
 	printf("Best Stump: %d %d, %.6f\n", bs.dim, bs.ineq, bs.thresh);
 
 	cout<<"##############################################"<<endl;
+	
+	vector<WeakClassifier> weakClassifierList;
+	cout<<weakClassifierList.size()<<endl;
+	adaBoostTrainDS(mData, mLabel, 9, weakClassifierList);
+	
+	mData = Mat::zeros(1, 2, CV_64F);
+	mData.at<double>(0, 0) = 0;
+	mData.at<double>(0, 1) = -11;
+	Mat agg;
+	adaClassify(mData, weakClassifierList, agg);
+	
+
+	cout<<agg<<endl;
+}
+
+bool loadDataSetBoost(const char* fileName, Mat& data, Mat& labels)
+{
+	int lineNumber = 0;
+	xFile file(fileName, "r");
+	vector<string> vec;
+	Utils util;
+	char *pBuffer;
+	string strPattern = "\t";
+	while(pBuffer=file.ReadString())
+	{
+		if(vec.empty()) {
+			string str = pBuffer;
+			vec = util.split(str, strPattern);
+		}
+		lineNumber++;
+	}
+	if(lineNumber < 1)
+		return false;
+	file.SeekToBegin();
+	data.create(lineNumber, vec.size()-1, CV_64F);
+	labels.create(lineNumber, 1, CV_64F);
+	int i = 0;
+	while(pBuffer=file.ReadString())
+	{
+		string str = pBuffer;
+		vector<string> vec = util.split(str, strPattern);
+		for(int j = 0; j < vec.size() - 1; j++){
+			data.at<double>(i, j) = atof(vec[j].c_str());
+		
+		}
+		labels.at<double>(i, 0) = atof(vec[vec.size()-1].c_str());
+		i++;
+	}
+	return true;
+}
+
+void testAdaBoost()
+{
+	Mat data, label;
+	loadDataSetBoost("horseColicTraining2.txt", data, label);
+	vector<WeakClassifier> weakClassifierList;
+	
+	adaBoostTrainDS(data, label, 100, weakClassifierList);
+	cout<<weakClassifierList.size()<<endl;
+	loadDataSetBoost("horseColicTest2.txt", data, label);
+	Mat agg;
+	adaClassify(data, weakClassifierList, agg);
+
+	absdiff(agg, label, agg);
+
+	agg/=2;
+	cout<<mean(agg)[0]*data.rows<<endl;
 }

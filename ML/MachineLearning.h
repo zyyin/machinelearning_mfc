@@ -39,4 +39,6 @@ void testSVMHandWriting();
 
 // adaboost
 void testSimpleData();
+void testAdaBoost();
+
 #endif
