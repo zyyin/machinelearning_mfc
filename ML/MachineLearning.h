@@ -31,9 +31,12 @@ void testTree();
 void testBayes();
 
 
+// SVM
 void testSVM();
 void testRBF();
 void testSVMHandWriting();
 
 
+// adaboost
+void testSimpleData();
 #endif
