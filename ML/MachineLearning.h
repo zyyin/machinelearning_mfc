@@ -24,7 +24,7 @@ void TestKNN();
 void handwritingClassTest();
 
 // trees
-float calcShannonEnt(Mat& data);
+double calcShannonEnt(Mat& data);
 void testTree();
 
 // bayes
@@ -40,5 +40,9 @@ void testSVMHandWriting();
 // adaboost
 void testSimpleData();
 void testAdaBoost();
+
+
+// Classify And Regression Tree
+void testCARTree();
 
 #endif

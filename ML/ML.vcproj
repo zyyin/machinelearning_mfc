@@ -186,11 +186,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\cartree.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\knn.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\ML.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MLTree.cpp"
 				>
 			</File>
 			<File
@@ -253,6 +261,10 @@
 			>
 			<File
 				RelativePath=".\MachineLearning.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MLTree.h"
 				>
 			</File>
 			<File
