@@ -3,8 +3,8 @@
 
 int main(int argc, char* argv[])
 {
-	testBayes();
-	
-	return 0;
+	//testBayes();
+	testSVM();
+
 }
 

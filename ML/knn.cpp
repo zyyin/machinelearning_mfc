@@ -1,6 +1,6 @@
 /*
-* Copyright (C) 2017 China.ShangHai, www.peitumedia.com
-* 
+* Copyright (C) 2017 China.ShangHai, zhiyeyin@gmail.com
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
@@ -16,8 +16,8 @@
 
 #include "stdafx.h"
 #include "MachineLearning.h"
-
-
+#include "Utils.h"
+#include "xFile.h"
 class sortType {
 public:
 	int inx;
@@ -123,76 +123,56 @@ void TestKNN()
 }
 
 
-void BrowseFolder(const char* folder, vector<CString>& fileList, vector<CString>& nameList)
-{
-	CFileFind finder;
-	CString strPath;
-	CString str = folder;
-	str += "\\*.*";
-	BOOL bWorking = finder.FindFile(str);
-	while (bWorking)
-	{
-		bWorking = finder.FindNextFile();
-		if(!finder.IsDirectory() && !finder.IsDots()) {
-
-			strPath=finder.GetFilePath();
-			fileList.push_back(strPath);
-			nameList.push_back(finder.GetFileName());
-		}
-	}
-}
-
 void handwritingClassTest()
 {
-	vector<CString> fileList;
-	vector<CString> nameList;
-	BrowseFolder("trainingDigits", fileList, nameList);
+	vector<string> fileList;
+	vector<string> nameList;
+	Utils util;
+	util.BrowseFolder("trainingDigits", fileList, nameList);
 	Mat data(nameList.size(), 32*32, CV_32F);
 	Mat lable(1, nameList.size(), CV_32F);
 	int printed = 0;
 	for(int i = 0; i < fileList.size(); i++)
 	{
-		char* c = (char*)(LPCTSTR)nameList[i];
-		printf("%s, %d\n", (LPCTSTR)fileList[i], atoi(c));
-		CStdioFile file(fileList[i], CFile::modeRead);
-		CString str;
+		printf("%s, %d\n", fileList[i], atoi(nameList[i].c_str()));
+		xFile file(fileList[i].c_str(), "r");
 		int line = 0;
-		while(file.ReadString(str)){
-			char* p = (char*)(LPCTSTR)str;
+		char* pBuffer;
+		while(pBuffer=file.ReadString()){
 			for(int j = 0; j < 32; j++)
 			{
-				data.at<float>(i, j+line*32) = p[j] - '0';
+				data.at<float>(i, j+line*32) = pBuffer[j] - '0';
 			}
 			line++;
 		}
 		file.Close();
-		lable.at<float>(0, i) = atoi(c);
+		lable.at<float>(0, i) = atoi(nameList[i].c_str());
 	}
 
 	fileList.clear();
 	nameList.clear();
-	BrowseFolder("testDigits", fileList, nameList);
+	util.BrowseFolder("testDigits", fileList, nameList);
 	float errorNumber = 0;
 	for(int i = 0; i< fileList.size(); i++)
 	{
-		char* c = (char*)(LPCTSTR)nameList[i];
+
 		Mat inx(1, 32*32, CV_32F);
-		CStdioFile file(fileList[i], CFile::modeRead);
-		CString str;
+		xFile file(fileList[i].c_str(), "r");
 		int line = 0;
 		float* iData = (float*)inx.data;
-		while(file.ReadString(str)){
-			char* p = (char*)(LPCTSTR)str;
+		char* pBuffer;
+		while(pBuffer=file.ReadString()){
+			
 			for(int j = 0; j < 32; j++)
 			{
-				iData[j+line*32] = p[j] - '0';
+				iData[j+line*32] = pBuffer[j] - '0';
 			}
 			line++;
 		}
 		file.Close();
 		float ret = kNN(inx, data, lable, 3);
-		printf("%s, %.2f\n", (LPCTSTR)fileList[i], ret);
-		if(ret != atoi(c))
+		printf("%s, %.2f\n", fileList[i].c_str(), ret);
+		if(ret != atoi(nameList[i].c_str()))
 			errorNumber += 1;
 	}
 

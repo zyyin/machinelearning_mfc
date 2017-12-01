@@ -48,18 +48,18 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/yin/github/merge/machinelearning_mfc/ML
+CMAKE_SOURCE_DIR = /home/zyyin/github/machinelearning_mfc/ML
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/yin/github/merge/machinelearning_mfc/ML
+CMAKE_BINARY_DIR = /home/zyyin/github/machinelearning_mfc/ML
 
 #=============================================================================
 # Targets provided globally by CMake.
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
+	/usr/bin/cmake-gui -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -80,9 +80,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yin/github/merge/machinelearning_mfc/ML/CMakeFiles /home/yin/github/merge/machinelearning_mfc/ML/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/zyyin/github/machinelearning_mfc/ML/CMakeFiles /home/zyyin/github/machinelearning_mfc/ML/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yin/github/merge/machinelearning_mfc/ML/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/zyyin/github/machinelearning_mfc/ML/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -150,6 +150,87 @@ ML.cpp.s:
 	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/ML.cpp.s
 .PHONY : ML.cpp.s
 
+MLTree.o: MLTree.cpp.o
+
+.PHONY : MLTree.o
+
+# target to build an object file
+MLTree.cpp.o:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/MLTree.cpp.o
+.PHONY : MLTree.cpp.o
+
+MLTree.i: MLTree.cpp.i
+
+.PHONY : MLTree.i
+
+# target to preprocess a source file
+MLTree.cpp.i:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/MLTree.cpp.i
+.PHONY : MLTree.cpp.i
+
+MLTree.s: MLTree.cpp.s
+
+.PHONY : MLTree.s
+
+# target to generate assembly for a file
+MLTree.cpp.s:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/MLTree.cpp.s
+.PHONY : MLTree.cpp.s
+
+Utils.o: Utils.cpp.o
+
+.PHONY : Utils.o
+
+# target to build an object file
+Utils.cpp.o:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/Utils.cpp.o
+.PHONY : Utils.cpp.o
+
+Utils.i: Utils.cpp.i
+
+.PHONY : Utils.i
+
+# target to preprocess a source file
+Utils.cpp.i:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/Utils.cpp.i
+.PHONY : Utils.cpp.i
+
+Utils.s: Utils.cpp.s
+
+.PHONY : Utils.s
+
+# target to generate assembly for a file
+Utils.cpp.s:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/Utils.cpp.s
+.PHONY : Utils.cpp.s
+
+adaboost.o: adaboost.cpp.o
+
+.PHONY : adaboost.o
+
+# target to build an object file
+adaboost.cpp.o:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/adaboost.cpp.o
+.PHONY : adaboost.cpp.o
+
+adaboost.i: adaboost.cpp.i
+
+.PHONY : adaboost.i
+
+# target to preprocess a source file
+adaboost.cpp.i:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/adaboost.cpp.i
+.PHONY : adaboost.cpp.i
+
+adaboost.s: adaboost.cpp.s
+
+.PHONY : adaboost.s
+
+# target to generate assembly for a file
+adaboost.cpp.s:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/adaboost.cpp.s
+.PHONY : adaboost.cpp.s
+
 bayes.o: bayes.cpp.o
 
 .PHONY : bayes.o
@@ -176,6 +257,60 @@ bayes.s: bayes.cpp.s
 bayes.cpp.s:
 	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/bayes.cpp.s
 .PHONY : bayes.cpp.s
+
+cartree.o: cartree.cpp.o
+
+.PHONY : cartree.o
+
+# target to build an object file
+cartree.cpp.o:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/cartree.cpp.o
+.PHONY : cartree.cpp.o
+
+cartree.i: cartree.cpp.i
+
+.PHONY : cartree.i
+
+# target to preprocess a source file
+cartree.cpp.i:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/cartree.cpp.i
+.PHONY : cartree.cpp.i
+
+cartree.s: cartree.cpp.s
+
+.PHONY : cartree.s
+
+# target to generate assembly for a file
+cartree.cpp.s:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/cartree.cpp.s
+.PHONY : cartree.cpp.s
+
+svm.o: svm.cpp.o
+
+.PHONY : svm.o
+
+# target to build an object file
+svm.cpp.o:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/svm.cpp.o
+.PHONY : svm.cpp.o
+
+svm.i: svm.cpp.i
+
+.PHONY : svm.i
+
+# target to preprocess a source file
+svm.cpp.i:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/svm.cpp.i
+.PHONY : svm.cpp.i
+
+svm.s: svm.cpp.s
+
+.PHONY : svm.s
+
+# target to generate assembly for a file
+svm.cpp.s:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/svm.cpp.s
+.PHONY : svm.cpp.s
 
 trees.o: trees.cpp.o
 
@@ -204,6 +339,33 @@ trees.cpp.s:
 	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/trees.cpp.s
 .PHONY : trees.cpp.s
 
+xFile.o: xFile.cpp.o
+
+.PHONY : xFile.o
+
+# target to build an object file
+xFile.cpp.o:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/xFile.cpp.o
+.PHONY : xFile.cpp.o
+
+xFile.i: xFile.cpp.i
+
+.PHONY : xFile.i
+
+# target to preprocess a source file
+xFile.cpp.i:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/xFile.cpp.i
+.PHONY : xFile.cpp.i
+
+xFile.s: xFile.cpp.s
+
+.PHONY : xFile.s
+
+# target to generate assembly for a file
+xFile.cpp.s:
+	$(MAKE) -f CMakeFiles/ML.dir/build.make CMakeFiles/ML.dir/xFile.cpp.s
+.PHONY : xFile.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -216,12 +378,30 @@ help:
 	@echo "... ML.o"
 	@echo "... ML.i"
 	@echo "... ML.s"
+	@echo "... MLTree.o"
+	@echo "... MLTree.i"
+	@echo "... MLTree.s"
+	@echo "... Utils.o"
+	@echo "... Utils.i"
+	@echo "... Utils.s"
+	@echo "... adaboost.o"
+	@echo "... adaboost.i"
+	@echo "... adaboost.s"
 	@echo "... bayes.o"
 	@echo "... bayes.i"
 	@echo "... bayes.s"
+	@echo "... cartree.o"
+	@echo "... cartree.i"
+	@echo "... cartree.s"
+	@echo "... svm.o"
+	@echo "... svm.i"
+	@echo "... svm.s"
 	@echo "... trees.o"
 	@echo "... trees.i"
 	@echo "... trees.s"
+	@echo "... xFile.o"
+	@echo "... xFile.i"
+	@echo "... xFile.s"
 .PHONY : help
 
 

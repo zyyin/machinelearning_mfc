@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2017 China.ShangHai, www.peitumedia.com
+* Copyright (C) 2017 China.ShangHai, zhiyeyin@gmail.com
 * 
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,16 +24,25 @@ void TestKNN();
 void handwritingClassTest();
 
 // trees
-float calcShannonEnt(Mat& data);
+double calcShannonEnt(Mat& data);
 void testTree();
 
 // bayes
 void testBayes();
 
 
+// SVM
+void testSVM();
+void testRBF();
+void testSVMHandWriting();
 
 
+// adaboost
+void testSimpleData();
+void testAdaBoost();
 
 
+// Classify And Regression Tree
+void testCARTree();
 
 #endif
