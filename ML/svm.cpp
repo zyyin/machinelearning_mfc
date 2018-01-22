@@ -34,7 +34,7 @@ int selectJrand(int i, int m)
 }
 double clipAlpha(double data, double L, double H)
 {
-	return min(H, max(L, data));
+	return MIN(H, MAX(L, data));
 }
 int smoSimple(Mat& src, Mat& labels, double C, double toler, int maxIter, double& b, Mat& ret)
 {
@@ -73,11 +73,11 @@ int smoSimple(Mat& src, Mat& labels, double C, double toler, int maxIter, double
 				double Ej = fxj - flj;
 				double jOld = alphas.at<double>(j, 0);
 				if(fli != flj){
-					L = max(0, jOld-iOld);
-					H = min(C, C+jOld-iOld);
+					L = MAX(0, jOld-iOld);
+					H = MIN(C, C+jOld-iOld);
 				} else {
-					L = max(0, jOld +iOld - C);
-					H = min(C, jOld+iOld);
+					L = MAX(0, jOld +iOld - C);
+					H = MIN(C, jOld+iOld);
 				}
 				if(L== H)
 				{
@@ -208,7 +208,8 @@ SVMStruct::SVMStruct(Mat& data, Mat& classLabels, double C, double toler, int ke
 	K = Mat::zeros(m_m, m_m, CV_64F);
 	for(int i = 0; i < m_m; i++) {
 		Mat t;
-		kernelTrans(X, X.row(i), t, kernelType, kernelSize);
+		Mat rt = X.row(i);
+		kernelTrans(X, rt, t, kernelType, kernelSize);
 		t.copyTo(K.col(i));
 	}
 }
@@ -280,11 +281,11 @@ int SVMStruct::slove(int i)
 		double L, H;
 		if(fli != flj)
 		{
-			L = max(0, jOld-iOld);
-			H = min(m_c, m_c + jOld - iOld);
+			L = MAX(0, jOld-iOld);
+			H = MIN(m_c, m_c + jOld - iOld);
 		} else {
-			L = max(0, jOld +iOld - m_c);
-			H = min(m_c, jOld+iOld);
+			L = MAX(0, jOld +iOld - m_c);
+			H = MIN(m_c, jOld+iOld);
 		}
 		if( L == H)
 		{
@@ -504,7 +505,8 @@ void testSVMHandWriting()
 	for(int i = 0; i < data.rows; i++)
 	{
 		Mat K;
-		kernelTrans(svData, data.row(i), K, KERNEL_TYPE_RBF, 10);
+		Mat rt = data.row(i);
+		kernelTrans(svData, rt, K, KERNEL_TYPE_RBF, 10);
 		Mat t = K.t()*svLA;
 		double predict = t.at<double>(0, 0) + b;
 		if(predict*label.at<double>(i, 0) < 0)
@@ -518,7 +520,8 @@ void testSVMHandWriting()
 	for(int i = 0; i < data.rows; i++)
 	{
 		Mat K;
-		kernelTrans(svData, data.row(i), K, KERNEL_TYPE_RBF, 10);
+		Mat rt = data.row(i);
+		kernelTrans(svData, rt, K, KERNEL_TYPE_RBF, 10);
 		Mat t = K.t()*svLA;
 		double predict = t.at<double>(0, 0) + b;
 		if(predict*label.at<double>(i, 0) < 0)

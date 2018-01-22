@@ -14,9 +14,11 @@
 * limitations under the License.
 */
 
-#include "StdAfx.h"
 #include "MLTree.h"
+#include <stdlib.h>
+#include <iostream>
 
+using namespace std;
 void MLTree::print()
 {
 	print(root, 0);

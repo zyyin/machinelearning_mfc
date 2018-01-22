@@ -14,9 +14,11 @@
 * limitations under the License.
 */
 
-#include "StdAfx.h"
 #include "Utils.h"
-
+#include <stdio.h>
+#include <dirent.h>
+#include <string.h>
+#include <stdlib.h>
 Utils::Utils(void)
 {
 }
@@ -27,21 +29,13 @@ Utils::~Utils(void)
 
 void Utils::BrowseFolder(const char* folder, vector<string>& fileList, vector<string>& nameList)
 {
-	CFileFind finder;
-	CString strPath;
-	CString str = folder;
-	str += "\\*.*";
-	BOOL bWorking = finder.FindFile(str);
-	while (bWorking)
-	{
-		bWorking = finder.FindNextFile();
-		if(!finder.IsDirectory() && !finder.IsDots()) {
-
-			strPath=finder.GetFilePath();
-			fileList.push_back(LPCTSTR(strPath));
-			nameList.push_back(LPCTSTR(finder.GetFileName()));
-		}
-	}
+  struct dirent *direntp;
+  DIR *dirp = opendir("/");
+  if (dirp != NULL) { 
+	while ((direntp = readdir(dirp)) != NULL) {
+	 fileList.push_back(direntp->d_name);
+		   }
+	   }
 }
 
 vector<string> Utils::split(const string &str,const string &pattern)
@@ -56,7 +50,6 @@ vector<string> Utils::split(const string &str,const string &pattern)
 		resultVec.push_back(string(tmpStr));
 		tmpStr = strtok(NULL, pattern.c_str());
 	}
-
 
 	return resultVec;
 };

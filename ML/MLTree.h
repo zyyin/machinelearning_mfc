@@ -1,4 +1,5 @@
 #pragma once
+#include <stdlib.h>
 
 #define TREE_TYPE double
 
