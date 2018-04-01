@@ -3,8 +3,8 @@
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	//testBayes();
-	testCARTree();
+	testBayes();
+	//testCARTree();
 
 }
 

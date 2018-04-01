@@ -290,14 +290,12 @@ double classifyTree(TreeNode* node, Mat& label, Mat& testData)
 void testTree()
 {
 	double c[15] = {1, 1, 101, 1, 1, 101, 1, 0, 100, 0, 1, 100, 0, 1, 100};
-	CvMat data = cvMat(5, 3, CV_64F, c);
+	Mat mData(5, 3, CV_64F, c);
 	double d[2] = {201, 202};
     double e[2] = {1, 1};
-	CvMat label = cvMat(1, 2, CV_64F, d);
-	CvMat testData = cvMat(1, 2, CV_64F, e);
-	Mat mData(&data);
-	Mat mLabel(&label);
-	Mat mTestData(&testData);
+	Mat mLabel(1, 2, CV_64F, d);
+	Mat mTestData(1, 2, CV_64F, e);
+
 	int n = chooseBestFeatureToSplit(mData);
 	cout<< n <<endl;
 	MLTree tree;

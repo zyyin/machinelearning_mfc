@@ -26,3 +26,7 @@ Backup*
 obsolete
 *.opensdf
 *.TMP
+*.opendb
+*.htm
+*.txt
+.vs

@@ -109,13 +109,13 @@ float kNN(Mat& inx, Mat& dataSet, Mat& labels,  int k)
 void TestKNN()
 {
 	float a[2] = {0.5, 0.6};
-	CvMat inx = cvMat(1, 2, CV_32F, a);
+	Mat inx(1, 2, CV_32F, a);
 	float b[4] = {101, 101, 102, 102};
-	CvMat labels = cvMat(1, 4, CV_32F, b);
+	Mat labels(1, 4, CV_32F, b);
 	float c[8] = {1.0, 1.1, 1.0, 1.0, 0, 0, 0, 0.1};
-	CvMat data = cvMat(4, 2, CV_32F, c);
-	float ret = kNN(Mat(&inx), Mat(&data), Mat(&labels), 3);
-	Mat m(&inx);
+	Mat data (4, 2, CV_32F, c);
+	float ret = kNN((inx), (data), (labels), 3);
+	Mat m(inx);
 	cv::normalize(m, m, 1, 0, NORM_MINMAX); 
 
 	cout<<m<<endl;
